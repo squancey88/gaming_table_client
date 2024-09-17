@@ -1,0 +1,18 @@
+
+<button (click)="sendToggle()">Toggle</button>
+
+<h1>Chase</h1>
+
+<div [formGroup]="chaseForm">
+  <input formControlName="time_per_light">
+  <p>Colour</p>
+  <input formControlName="chase_color_r">
+  <input formControlName="chase_color_g">
+  <input formControlName="chase_color_b">
+</div>
+<button (click)="sendChase()">Chase</button>
+
+<h1>MTG</h1>
+<button (click)="sendMtgHealth()">Start MTG</button>
+<button (click)="sendPlayerOneMinusLife()">P1 - 1</button>
+<button (click)="sendPlayerOnePlusLife()">P1 + 1</button>
