@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TableInterfaceService } from '../table-interface.service';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -20,23 +20,40 @@ import { debounceTime } from 'rxjs';
   templateUrl: './mtg-health.component.html',
   styleUrl: './mtg-health.component.scss'
 })
-export class MtgHealthComponent {
+export class MtgHealthComponent implements OnInit {
 
   gameInProgress = false
 
   startForm: FormGroup;
   gameForm!: FormGroup;
-  public availablePositions = Array(6).fill(0).map((x,i)=>i+1);
   gamePlayers: Array<{position: number, player_name: string}> = [];
+  public availablePositions?: number[];
 
   constructor(
-    public tableInteface: TableInterfaceService,
-    public formBuilder: FormBuilder
+    private tableInteface: TableInterfaceService,
+    private formBuilder: FormBuilder
   ){
     this.startForm = this.formBuilder.group({
       start_health: new FormControl(20),
       players: new FormArray([])
     })
+  }
+
+  ngOnInit(): void {
+    if(this.tableInteface.connected.getValue()){
+      this.setPositions();
+    } else {
+      this.tableInteface.configLoaded.asObservable().subscribe((value) => {
+        if(value){
+          console.log("setting position");
+          this.setPositions();
+        }
+      });
+    }
+  }
+
+  setPositions() {
+    this.availablePositions = Array(this.tableInteface.config?.seats).fill(0).map((x,i)=>i+1);
   }
 
   get startPlayerRows() {
@@ -57,11 +74,11 @@ export class MtgHealthComponent {
   start(){
     const data = this.startForm.value;
     this.gamePlayers = data.players;
-    this.tableInteface.sendCommand({
+    this.tableInteface.sendLightCommand({
       type: "new",
       name: "mtg_health",
       params:{
-        player_positions: this.gamePlayers,
+        player_positions: this.gamePlayers.map((value) => value.position),
         start_health: data.start_health,
         light_count: 20
       }
@@ -80,7 +97,7 @@ export class MtgHealthComponent {
     this.gameForm.valueChanges.pipe(debounceTime(1000)).subscribe((updated) => {
       const updates = this.gameForm.value
       console.log(updates);
-      this.tableInteface.sendCommand({
+      this.tableInteface.sendLightCommand({
         type: "update",
         params: updates
       });

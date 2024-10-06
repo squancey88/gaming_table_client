@@ -1,0 +1,31 @@
+.status-container {
+
+  .status-dashboard {
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    color: red;
+
+    &.connected {
+      color: green
+    }
+  }
+
+  div.card-wrapper {
+    position: absolute;
+    right: 10px;
+    z-index: 1000;
+  }
+
+  &:hover {
+    mat-card {
+      display: flex;
+    }
+  }
+
+  mat-card {
+    display: none;
+    position: relative;
+    top: 10px;
+  }
+}

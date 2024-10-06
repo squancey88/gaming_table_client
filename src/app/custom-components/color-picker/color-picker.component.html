@@ -1,0 +1,10 @@
+
+<mat-form-field>
+  <mat-label>{{label}}</mat-label>
+  <input #colorPicker matInput
+    [disabled]="disabled"
+    [placeholder]="placeholder"
+    [(ngModel)]="value"
+    (ngModelChange)="handleModelChange()"
+  >
+</mat-form-field>

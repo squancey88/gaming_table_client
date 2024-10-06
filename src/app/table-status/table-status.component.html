@@ -1,0 +1,22 @@
+
+<div class="status-container">
+  <div class="status-dashboard" [class.connected]="connected">
+    <mat-icon>table_restaurant</mat-icon>
+    <div *ngIf="connected else notConnected">
+      <mat-icon>check_circle</mat-icon>
+    </div>
+    <ng-template #notConnected>
+      <mat-icon>cancel</mat-icon>
+    </ng-template>
+  </div>
+  <div class="card-wrapper">
+    <mat-card *ngIf="currentStatus">
+      <mat-card-header>
+        <mat-card-title>Table Status</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        Lights: {{ currentStatus.lights.mode }}
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

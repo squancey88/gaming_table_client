@@ -3,12 +3,13 @@
     <mat-icon>menu</mat-icon>
   </button>
   <span>Gaming Table Controller</span>
-  <span class="example-spacer"></span>
+  <span class="menu-spacer"></span>
+  <app-table-status></app-table-status>
 </mat-toolbar>
 
 <mat-menu #menu="matMenu">
-  <a href="/" mat-menu-item>Home</a>
-  <a href="/mtg-health" mat-menu-item>MTG</a>
+  <a routerLink="/" mat-menu-item>Home</a>
+  <a routerLink="/mtg-health" mat-menu-item>MTG</a>
 </mat-menu>
 
 <router-outlet />
