@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { TableStatusComponent } from "./table-status/table-status.component";
+import { GameRunnerGuard } from './guards/game-runner-guard';
 
 @Component({
   selector: 'app-root',

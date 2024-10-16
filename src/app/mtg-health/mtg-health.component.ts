@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { TableInterfaceService } from '../table-interface.service';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -8,31 +8,34 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select'; 
 import { MatIconModule } from '@angular/material/icon';
 import { debounceTime } from 'rxjs';
+import { CustomComponentsModule } from '../custom-components/custom-components.module';
+import { GameRunnner } from '../game-runner';
 
 @Component({
   selector: 'app-mtg-health',
   standalone: true,
   imports: [
-    ReactiveFormsModule, CommonModule,
+    ReactiveFormsModule, CommonModule, CustomComponentsModule,
     MatInputModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatSelectModule
   ],
   templateUrl: './mtg-health.component.html',
   styleUrl: './mtg-health.component.scss'
 })
-export class MtgHealthComponent implements OnInit {
+export class MtgHealthComponent extends GameRunnner implements OnInit {
 
   gameInProgress = false
 
   startForm: FormGroup;
   gameForm!: FormGroup;
-  gamePlayers: Array<{position: number, player_name: string}> = [];
+  gamePlayers: Array<{position: number, player_name: string, background_color: string}> = [];
   public availablePositions?: number[];
 
   constructor(
     private tableInteface: TableInterfaceService,
     private formBuilder: FormBuilder
   ){
+    super();
     this.startForm = this.formBuilder.group({
       start_health: new FormControl(20),
       players: new FormArray([])
@@ -52,6 +55,10 @@ export class MtgHealthComponent implements OnInit {
     }
   }
 
+  gameRunning(): boolean {
+    return this.gameInProgress; 
+  }
+
   setPositions() {
     this.availablePositions = Array(this.tableInteface.config?.seats).fill(0).map((x,i)=>i+1);
   }
@@ -63,7 +70,8 @@ export class MtgHealthComponent implements OnInit {
   addPlayer() {
     this.startPlayerRows.push(this.formBuilder.group({
       position: new FormControl(),
-      player_name: new FormControl()
+      player_name: new FormControl(),
+      background_color: new FormControl()
     }));
   }
 
@@ -71,18 +79,27 @@ export class MtgHealthComponent implements OnInit {
     return this.gameForm.get('player_data') as FormArray;
   }
 
-  start(){
-    const data = this.startForm.value;
-    this.gamePlayers = data.players;
+  sendStartCommand(data: any){
     this.tableInteface.sendLightCommand({
       type: "new",
       name: "mtg_health",
       params:{
-        player_positions: this.gamePlayers.map((value) => value.position),
+        player_positions: this.gamePlayers.map((value) => { 
+          return {
+            position: value.position, 
+            background_color: value.background_color
+          }
+        }),
         start_health: data.start_health,
         light_count: 20
       }
     });
+  }
+
+  start(){
+    const data = this.startForm.value;
+    this.gamePlayers = data.players;
+    this.sendStartCommand(data);
     const playerControlArray = this.formBuilder.array(this.gamePlayers.map((player) => {
         return this.formBuilder.group({
           player: new FormControl(player.position),
@@ -94,7 +111,7 @@ export class MtgHealthComponent implements OnInit {
     this.gameForm = this.formBuilder.group({
       player_data: playerControlArray
     });
-    this.gameForm.valueChanges.pipe(debounceTime(1000)).subscribe((updated) => {
+    this.gameForm.valueChanges.pipe(debounceTime(500)).subscribe((updated) => {
       const updates = this.gameForm.value
       console.log(updates);
       this.tableInteface.sendLightCommand({

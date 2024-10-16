@@ -42,6 +42,7 @@
             <mat-option *ngFor="let pos of availablePositions" [value]="pos">{{ pos }}</mat-option>
           </mat-select>
         </mat-form-field>
+        <app-color-picker label="Player Colour" formControlName="background_color"></app-color-picker>
       </div>
     </div>
     <button mat-button (click)="start()">Start</button>
