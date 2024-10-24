@@ -20,6 +20,42 @@
       </div>
     </div>
   </div>
+
+
+  <div [formGroup]="damageForm">
+    <select formControlName="attacker">
+      <option *ngFor="let player of playerRows.controls; let rowNumber=index" [value]="rowNumber">{{player.get("player_name")?.value}}</option>
+
+    </select>
+    <br>
+    <input type="number" formControlName="damage">
+    <br>
+    <select formControlName="defender">
+      <option *ngFor="let player of playerRows.controls; let rowNumber=index" [value]="rowNumber">{{player.get("player_name")?.value}}</option>
+
+    </select>
+    <br>
+    <button (click)="doDamage()">
+      do damage 
+    </button>
+    
+
+
+
+
+  </div>
+  <div>
+    <div *ngFor="let damageEvent of damageEvents">
+      {{damageEvent.attacker}} did {{damageEvent.damage}} damage to {{damageEvent.defender}}
+      <br>
+    </div>
+    
+
+  </div>
+
+
+
+
 </div>
 
 <ng-template #startSection>

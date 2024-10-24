@@ -24,12 +24,16 @@ import { GameRunnner } from '../game-runner';
 })
 export class MtgHealthComponent extends GameRunnner implements OnInit {
 
+
   gameInProgress = false
 
   startForm: FormGroup;
   gameForm!: FormGroup;
+  damageForm: FormGroup;
   gamePlayers: Array<{position: number, player_name: string, background_color: string}> = [];
   public availablePositions?: number[];
+  damageEvents: Array<{attacker: string, defender: string, damage: number}> = [];
+
 
   constructor(
     private tableInteface: TableInterfaceService,
@@ -40,6 +44,19 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
       start_health: new FormControl(20),
       players: new FormArray([])
     })
+    this.damageForm = this.formBuilder.group({
+      attacker: new FormControl(), defender: new FormControl(), damage: new FormControl(), is_commander: new FormControl(false)
+    })
+      // Temp code
+
+    this.gameForm = this.formBuilder.group({
+      player_data: this.formBuilder.array([
+        this.setupPlayer(1, "p1", 20),
+        this.setupPlayer(2, "p2", 20)
+      ])
+    });
+    console.log(this.gameForm);
+    this.gameInProgress = true;
   }
 
   ngOnInit(): void {
@@ -53,6 +70,8 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
         }
       });
     }
+
+  
   }
 
   gameRunning(): boolean {
@@ -96,18 +115,21 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     });
   }
 
+  setupPlayer(position: number, name: string, start_health: number){
+    return this.formBuilder.group({
+      player: new FormControl(position),
+      player_name: new FormControl(name),
+      current_health: new FormControl(start_health)
+    });
+  }
+
   start(){
     const data = this.startForm.value;
     this.gamePlayers = data.players;
     this.sendStartCommand(data);
     const playerControlArray = this.formBuilder.array(this.gamePlayers.map((player) => {
-        return this.formBuilder.group({
-          player: new FormControl(player.position),
-          player_name: new FormControl(player.player_name),
-          current_health: new FormControl(data.start_health)
-        })
-      })
-    );
+      this.setupPlayer(player.position, player.player_name, data.start_health)
+    }));
     this.gameForm = this.formBuilder.group({
       player_data: playerControlArray
     });
@@ -138,5 +160,29 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     }
   }
 
+  doDamage() {
+    const damage = this.damageForm.get("damage")?.value;
+    console.log(damage);
+    const defender = this.damageForm.get("defender")?.value;
+    console.log(defender);
+    const attacker = this.damageForm.get("attacker")?.value;
+    console.log(attacker);
+    const playerHealthControl = this.playerRows.controls[defender].get("current_health");
+    if(playerHealthControl){
+      const currentHealth = parseInt(playerHealthControl.value);
+      playerHealthControl.setValue(currentHealth - damage);
+      this.damageEvents.push({
+        attacker: this.getPlayerName(attacker),
+        defender: this.getPlayerName(defender),
+        damage: damage
+      });
+    }
+
+  }
+
+  getPlayerName(index: number): string{
+    const name = this.playerRows.controls[index].get("player_name")?.value;
+    return name;
+  }
 
 }
