@@ -47,8 +47,8 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     this.damageForm = this.formBuilder.group({
       attacker: new FormControl(), defender: new FormControl(), damage: new FormControl(), is_commander: new FormControl(false)
     })
-      // Temp code
-
+    
+    // Temp code
     this.gameForm = this.formBuilder.group({
       player_data: this.formBuilder.array([
         this.setupPlayer(1, "p1", 20),
@@ -57,7 +57,7 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     });
     console.log(this.gameForm);
     this.gameInProgress = true;
-  }
+    }
 
   ngOnInit(): void {
     if(this.tableInteface.connected.getValue()){
@@ -128,7 +128,7 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     this.gamePlayers = data.players;
     this.sendStartCommand(data);
     const playerControlArray = this.formBuilder.array(this.gamePlayers.map((player) => {
-      this.setupPlayer(player.position, player.player_name, data.start_health)
+      return this.setupPlayer(player.position, player.player_name, data.start_health)
     }));
     this.gameForm = this.formBuilder.group({
       player_data: playerControlArray
