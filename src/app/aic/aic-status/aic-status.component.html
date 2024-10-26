@@ -1,0 +1,18 @@
+<div class="aic-status-container">
+  <div *ngIf="loggedIn" class="group">
+    <span *ngIf="currentGroup else noGroup">
+      {{ currentGroup.name }}
+    </span>
+    <ng-template #noGroup>
+      No Group Selected
+    </ng-template>
+  </div>
+  <div class="aic-status-dashboard">
+    <a routerLink="/aic-login" [class.connected]="loggedIn">
+      <mat-icon
+        matTooltipPosition="below"
+        [matTooltip]="tooltipText()"
+      >shield</mat-icon>
+    </a>
+  </div>
+</div>

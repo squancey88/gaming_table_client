@@ -2,11 +2,16 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { MtgHealthComponent } from './mtg-health/mtg-health.component';
 import { GameRunnerGuard } from './guards/game-runner-guard';
+import { AICLoginComponent } from './aic/aic-login/aic-login.component';
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+  },
+  {
+    path: 'aic-login',
+    component: AICLoginComponent,
   },
   {
     path: 'mtg-health',

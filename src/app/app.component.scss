@@ -2,3 +2,9 @@
 .menu-spacer {
   flex: 1 1 auto;
 }
+
+.statuses {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}

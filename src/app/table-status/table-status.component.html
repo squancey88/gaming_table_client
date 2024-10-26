@@ -1,6 +1,7 @@
 
 <div class="status-container">
-  <div class="status-dashboard" [class.connected]="connected">
+  <div class="status-dashboard" [class.connected]="connected"
+    matTooltip="Table Connection">
     <mat-icon>table_restaurant</mat-icon>
     <div *ngIf="connected else notConnected">
       <mat-icon>check_circle</mat-icon>

@@ -6,6 +6,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
 import { TableStatusComponent } from "./table-status/table-status.component";
 import { GameRunnerGuard } from './guards/game-runner-guard';
+import { AicModule } from './aic/aic.module';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ import { GameRunnerGuard } from './guards/game-runner-guard';
   imports: [
     RouterOutlet, RouterLink,
     MatButtonModule, MatIconModule, MatToolbarModule, MatMenuModule,
-    TableStatusComponent
+    TableStatusComponent, AicModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

@@ -1,0 +1,22 @@
+.aic-status-container {
+  display: flex;
+  flex-direction: row; 
+  gap: 5px;
+
+  .group {
+    font-size: 10px;
+  }
+
+  .aic-status-dashboard {
+    a {
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      color: red;
+
+      &.connected {
+        color: green
+      }
+    }
+  }
+}
