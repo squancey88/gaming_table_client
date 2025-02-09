@@ -1,0 +1,97 @@
+<div *ngIf="gameData" class="container">
+  <div class="player-row">
+    <div class="player" *ngFor="let player of playerData; let i=index" [class.current]="i == currentPlayer">
+      <div class="name">{{ player.player.name }}</div>
+      <div class="health">{{ player.currentHealth }}</div>
+      <div class="time">{{ player.totalTime }}</div>
+      <div class="commander-tracking">
+        Commander Damage
+        <div class="commander" *ngFor="let commander of player.commanderDamage">
+          <div>{{ commander.name }}</div> <div>{{ commander.totalDamage }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="turn">
+    <div class="turn-timer">{{ turnLength }}</div>
+    <div class="turn-buttons">
+      <button mat-flat-button (click)="nextTurn()">Next Turn</button>
+      <button *ngIf="!paused else unPause" mat-flat-button (click)="pause()">Pause</button>
+      <ng-template #unPause>
+        <button mat-flat-button (click)="unpause()">Resume</button>
+      </ng-template>
+    </div>
+  </div>
+
+  <h3>Damage</h3>
+
+  <div [formGroup]="damageForm" class="game-form">
+    <mat-form-field>
+      <mat-label>Target</mat-label>
+      <mat-select formControlName="targetPlayerIndex">
+        <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
+          {{player.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Attacker</mat-label>
+      <mat-select formControlName="sourcePlayerIndex">
+        <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
+          {{player.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Amount</mat-label>
+      <input matInput formControlName="change" type="number">
+    </mat-form-field>  
+
+    <mat-checkbox formControlName="commander">Commander?</mat-checkbox>
+
+    <button mat-flat-button (click)="doDamage()">Damage</button>
+  </div>
+
+  <h3>Healing</h3>
+
+  <div [formGroup]="healingForm" class="game-form">
+    <mat-form-field>
+      <mat-label>Target</mat-label>
+      <mat-select formControlName="targetPlayerIndex">
+        <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
+          {{player.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Amount</mat-label>
+      <input matInput formControlName="change" type="number">
+    </mat-form-field>  
+
+    <button mat-flat-button (click)="doHeal()">Heal</button>
+  </div>
+
+
+  <h3>Events</h3>
+
+  <div class="changes">
+    <div class="change" *ngFor="let event of gameData.healthChanges.slice().reverse(); let i=index" 
+      [class.change-damage]="event.change < 0" [class.change-healing]="event.change > 0">
+      <ng-content *ngIf="event.change < 0 else healed">
+        <span>
+          {{ playerData[event.targetPlayerIndex].player.name }} was damaged by {{ playerData[event.sourcePlayerIndex].player.name }} for {{ -event.change }} damage
+          <ng-content *ngIf="event.commander">by commander</ng-content>
+        </span>
+      </ng-content>
+      <ng-template #healed>
+        {{ playerData[event.targetPlayerIndex].player.name }} healed {{ event.change }}
+      </ng-template>
+      <button mat-raised-button (click)="undoChange(i)">Undo</button>
+  </div>
+  </div>
+
+</div>

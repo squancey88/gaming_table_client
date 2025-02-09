@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AICLoginComponent } from './aic-login.component';
+import { AICService } from '../aic.service';
+import { createAICServiceMock } from '../testing/service.mocks';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AICLoginComponent', () => {
   let component: AICLoginComponent;
@@ -8,7 +14,11 @@ describe('AICLoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AICLoginComponent]
+      imports: [MatFormFieldModule, ReactiveFormsModule, MatInputModule, BrowserAnimationsModule],
+      providers: [
+        { provide: AICService, useValue: createAICServiceMock()}
+      ],
+      declarations: [AICLoginComponent]
     })
     .compileComponents();
 

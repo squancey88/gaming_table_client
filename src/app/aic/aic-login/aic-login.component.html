@@ -1,29 +1,12 @@
-
-<div *ngIf="loggedIn else showLoginForm">
-  You are connected to AIC
-
-  <button mat-raised-button (click)="logout()">Logout</button>
-
-  <div>
-    <h1>Your Groups</h1>
-    <div *ngFor="let group of groups">
-      {{ group.name }}
-      <button mat-flat-button (click)="setGroup(group)">Set as Active</button>
-    </div>
-  </div>
+<div class="login-form" [formGroup]="loginForm">
+  <h1>Login to AIC</h1>
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input matInput type="email" formControlName="email">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" formControlName="password">
+  </mat-form-field>
+  <button mat-button (click)="login()">Login</button>
 </div>
-
-<ng-template #showLoginForm>
-  <div class="login-form" [formGroup]="loginForm">
-    <h1>Login to AIC</h1>
-    <mat-form-field>
-      <mat-label>Email</mat-label>
-      <input matInput type="email" formControlName="email">
-    </mat-form-field>
-    <mat-form-field>
-      <mat-label>Password</mat-label>
-      <input matInput type="password" formControlName="password">
-    </mat-form-field>
-    <button mat-button (click)="login()">Login</button>
-  </div>
-</ng-template>

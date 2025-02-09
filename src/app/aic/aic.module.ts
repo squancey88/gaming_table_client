@@ -10,9 +10,11 @@ import { AICLoginComponent } from './aic-login/aic-login.component';
 import { AicStatusComponent } from './aic-status/aic-status.component';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { AicPlayerSelectComponent } from './aic-player-select/aic-player-select.component';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
-  declarations: [AICLoginComponent, AicStatusComponent],
+  declarations: [AICLoginComponent, AicStatusComponent, AicPlayerSelectComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule, 
@@ -21,10 +23,11 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatSelectModule,
     RouterModule
   ],
   providers: [
   ],
-  exports: [AicStatusComponent]
+  exports: [AicStatusComponent, AicPlayerSelectComponent]
 })
 export class AicModule { }

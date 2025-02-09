@@ -1,10 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { AicModule } from './aic/aic.module';
+import { AICService } from './aic/aic.service';
+import { createAICServiceMock } from './aic/testing/service.mocks';
+import { TableInterfaceService } from './table-interface.service';
+import { createTableInterfaceServiceMock } from './testing/service.mocks';
+import { provideRouter } from '@angular/router';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, AicModule],
+      providers: [
+        provideRouter([]),
+        { provide: AICService, useValue: createAICServiceMock() },
+        { provide: TableInterfaceService, useValue: createTableInterfaceServiceMock() }
+      ]
     }).compileComponents();
   });
 
@@ -20,10 +31,4 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('gaming_table_client');
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, gaming_table_client');
-  });
 });

@@ -1,6 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AicStatusComponent } from './aic-status.component';
+import { AICService } from '../aic.service';
+import { createAICServiceMock } from '../testing/service.mocks';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 describe('AicStatusComponent', () => {
   let component: AicStatusComponent;
@@ -8,7 +12,11 @@ describe('AicStatusComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AicStatusComponent]
+      imports: [MatIconModule, MatTooltipModule],
+      providers: [
+        { provide: AICService, useValue: createAICServiceMock() }
+      ],
+      declarations: [AicStatusComponent]
     })
     .compileComponents();
 

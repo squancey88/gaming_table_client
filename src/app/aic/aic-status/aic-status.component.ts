@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AICService } from '../aic.service';
-import { GamingGroup } from '../aic.interfaces';
+import { GamingGroup, User } from '../aic.interfaces';
 
 @Component({
   selector: 'app-aic-status',

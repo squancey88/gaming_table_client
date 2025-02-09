@@ -1,0 +1,92 @@
+
+.container {
+  padding: 0 15px;
+}
+
+.player-row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  .player {
+    flex: 0 1 220px;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &.current {
+      background-color: lightgreen;
+    }
+
+    .name {
+      text-align: center;
+    }
+
+    .health {
+      font-size: 50pt;
+      line-height: 50pt;
+    }
+
+    .commander-tracking {
+      margin-top: 10px;
+      border-top: 1px solid black;
+
+      .commander {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+    }
+  }
+}
+
+.turn {
+  &-timer {
+    font-size: 18pt;
+    line-height: 18pt;
+    margin-bottom: 5px;
+  }
+
+  &-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+  }
+}
+
+.game-form {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: flex-start;
+}
+
+.changes {
+  width: 80%;
+  max-width: 800px;
+  height: 400px;
+  overflow-y: scroll;
+
+  .change {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 1px solid black;
+    margin-bottom: 5px;
+    padding: 5px;
+
+    &-damage {
+      background-color: lightcoral;
+    }
+
+    &-healing {
+      background-color: lightgreen;
+    }
+  }
+
+}

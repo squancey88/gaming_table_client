@@ -7,9 +7,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select'; 
 import { MatIconModule } from '@angular/material/icon';
-import { debounceTime } from 'rxjs';
+import { MatListModule } from '@angular/material/list';
 import { CustomComponentsModule } from '../custom-components/custom-components.module';
 import { GameRunnner } from '../game-runner';
+import { AicModule } from "../aic/aic.module";
+import { MtgHealthGameRunnerComponent } from "../mtg-health-game-runner/mtg-health-game-runner.component";
+import { GameCache, MTGGameInstance, MTGPlayer } from '../data-interfaces';
+import { StorageService } from '../storage.service';
+import { User } from '../aic/aic.interfaces';
 
 @Component({
   selector: 'app-mtg-health',
@@ -17,8 +22,10 @@ import { GameRunnner } from '../game-runner';
   imports: [
     ReactiveFormsModule, CommonModule, CustomComponentsModule,
     MatInputModule, MatButtonModule, MatIconModule,
-    MatFormFieldModule, MatSelectModule
-  ],
+    MatFormFieldModule, MatSelectModule, MatListModule,
+    AicModule,
+    MtgHealthGameRunnerComponent
+],
   templateUrl: './mtg-health.component.html',
   styleUrl: './mtg-health.component.scss'
 })
@@ -27,19 +34,21 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
   gameInProgress = false
 
   startForm: FormGroup;
-  gameForm!: FormGroup;
-  gamePlayers: Array<{position: number, player_name: string, background_color: string}> = [];
   public availablePositions?: number[];
+  cachedGames!: Array<GameCache>;
+  selectedGameId: string = '';
 
   constructor(
     private tableInteface: TableInterfaceService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private storageService: StorageService
   ){
     super();
     this.startForm = this.formBuilder.group({
       start_health: new FormControl(20),
       players: new FormArray([])
     })
+    this.loadGames();
   }
 
   ngOnInit(): void {
@@ -53,6 +62,10 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
         }
       });
     }
+  }
+
+  loadGames(){
+    this.cachedGames = this.storageService.gamesByType("mtg");
   }
 
   gameRunning(): boolean {
@@ -71,72 +84,51 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     this.startPlayerRows.push(this.formBuilder.group({
       position: new FormControl(),
       player_name: new FormControl(),
+      player_id: new FormControl(),
       background_color: new FormControl()
     }));
   }
 
-  get playerRows() {
-    return this.gameForm.get('player_data') as FormArray;
+  setName(user: User, index: number) {
+    this.startPlayerRows.controls[index].patchValue({player_name: user.display_name})
   }
 
-  sendStartCommand(data: any){
-    this.tableInteface.sendLightCommand({
-      type: "new",
-      name: "mtg_health",
-      params:{
-        player_positions: this.gamePlayers.map((value) => { 
-          return {
-            position: value.position, 
-            background_color: value.background_color
-          }
-        }),
-        start_health: data.start_health,
-        light_count: 20
-      }
-    });
-  }
-
-  start(){
+  create(){
     const data = this.startForm.value;
-    this.gamePlayers = data.players;
-    this.sendStartCommand(data);
-    const playerControlArray = this.formBuilder.array(this.gamePlayers.map((player) => {
-        return this.formBuilder.group({
-          player: new FormControl(player.position),
-          player_name: new FormControl(player.player_name),
-          current_health: new FormControl(data.start_health)
-        })
-      })
-    );
-    this.gameForm = this.formBuilder.group({
-      player_data: playerControlArray
+    const gamePlayers = data.players.map((item: any) => {
+      const player: MTGPlayer = {
+        name: item.player_name,
+        tableSeat: item.position,
+        aicId: item.player_id
+      }
+      return player;
     });
-    this.gameForm.valueChanges.pipe(debounceTime(500)).subscribe((updated) => {
-      const updates = this.gameForm.value
-      console.log(updates);
-      this.tableInteface.sendLightCommand({
-        type: "update",
-        params: updates
-      });
-    });
+
+    const gameData: MTGGameInstance = {
+      started: new Date(),
+      players: gamePlayers,
+      startHealth: Number(data.start_health),
+      healthChanges: [],
+      timeTracking: []
+    }
+
+    const id = this.storageService.saveGame({
+      type: "mtg",
+      data: gameData,
+    } as GameCache);
+
+    this.startGame(id);
+  }
+
+  startGame(id: string) {
+    this.selectedGameId = id;
     this.gameInProgress = true;
   }
-
-  addHealth(index: number){
-    const control = this.playerRows.controls[index].get("current_health")
-    if(control){
-      const current_health = parseInt(control.value)
-      control.setValue(current_health + 1)
+  
+  deleteGame(id: string) {
+    if(confirm("Are you sure?")){
+      this.storageService.deleteGame(id);
+      this.loadGames();
     }
   }
-
-  removeHealth(index: number){
-    const control = this.playerRows.controls[index].get("current_health")
-    if(control){
-      const current_health = parseInt(control.value)
-      control.setValue(current_health - 1)
-    }
-  }
-
-
 }
