@@ -21,5 +21,17 @@ export interface GamingSession extends AICCommonFields {
   start_time: Date
 }
 
+export interface Game extends AICCommonFields {
+
+}
+
+export interface GameSystem extends AICCommonFields {
+  competitive: boolean;
+  edition: string;
+  name: string;
+  slug: string;
+  type: string;
+}
+
 export const TOKEN_STORAGE_KEY = 'aic_token';
 export const SELECTED_GROUP_KEY = 'aic_selected_group';

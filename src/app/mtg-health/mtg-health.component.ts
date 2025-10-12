@@ -5,16 +5,19 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select'; 
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CustomComponentsModule } from '../custom-components/custom-components.module';
 import { GameRunnner } from '../game-runner';
 import { AicModule } from "../aic/aic.module";
 import { MtgHealthGameRunnerComponent } from "../mtg-health-game-runner/mtg-health-game-runner.component";
 import { GameCache, MTGGameInstance, MTGPlayer } from '../data-interfaces';
 import { StorageService } from '../storage.service';
-import { User } from '../aic/aic.interfaces';
+import { User, Game } from '../aic/aic.interfaces';
+import { AICService } from '../aic/aic.service';
+import { GamesApiService, GameData } from '../aic/games-api.service';
 
 @Component({
   selector: 'app-mtg-health',
@@ -23,6 +26,7 @@ import { User } from '../aic/aic.interfaces';
     ReactiveFormsModule, CommonModule, CustomComponentsModule,
     MatInputModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatSelectModule, MatListModule,
+    MatCheckboxModule,
     AicModule,
     MtgHealthGameRunnerComponent
 ],
@@ -37,18 +41,31 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
   public availablePositions?: number[];
   cachedGames!: Array<GameCache>;
   selectedGameId: string = '';
+  validGame = true;
 
   constructor(
     private tableInteface: TableInterfaceService,
     private formBuilder: FormBuilder,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private aicService: AICService,
+    private gameApi: GamesApiService
   ){
     super();
     this.startForm = this.formBuilder.group({
       start_health: new FormControl(20),
+      add_to_aic: new FormControl(false),
       players: new FormArray([])
     })
     this.loadGames();
+    this.startForm.valueChanges.subscribe(changes => {
+      if(changes.add_to_aic) {
+        if(this.aicService.currentSession === undefined) {
+          this.validGame = false;
+        }
+      } else {
+        this.validGame = true;
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -57,7 +74,6 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     } else {
       this.tableInteface.configLoaded.asObservable().subscribe((value) => {
         if(value){
-          console.log("setting position");
           this.setPositions();
         }
       });
@@ -69,7 +85,7 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
   }
 
   gameRunning(): boolean {
-    return this.gameInProgress; 
+    return this.gameInProgress;
   }
 
   setPositions() {
@@ -95,11 +111,38 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
 
   create(){
     const data = this.startForm.value;
+    console.log(data);
+    if(data.add_to_aic) {
+      this.setupAICGame(data);
+    } else {
+      this.setupGameData(data);
+    }
+  }
+
+  private setupAICGame(data: any) {
+    const gameSystem = this.aicService.getGameSystemBySlug('mtg');
+    if(gameSystem && this.aicService.currentSession) {
+      this.gameApi.createGame({
+        game_system_id: gameSystem.id,
+        gaming_session_id: this.aicService.currentSession.id,
+        players_attributes: data.players.map((item: any) => {
+          return {
+            controller_id: item.player_id,
+            controller_type: "User"
+          }
+        })
+      } as GameData).subscribe((game) => {
+        this.setupGameData(data, game.id);
+      })
+    }
+  }
+
+  private setupGameData(data: any, aicId?: string) {
     const gamePlayers = data.players.map((item: any) => {
       const player: MTGPlayer = {
         name: item.player_name,
-        tableSeat: item.position,
-        aicId: item.player_id
+        table_seat: item.position,
+        aic_id: item.player_id
       }
       return player;
     });
@@ -107,9 +150,11 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     const gameData: MTGGameInstance = {
       started: new Date(),
       players: gamePlayers,
-      startHealth: Number(data.start_health),
-      healthChanges: [],
-      timeTracking: []
+      data_version: "v1",
+      aic_id: aicId,
+      start_health: Number(data.start_health),
+      health_changes: [],
+      turn_tracking: []
     }
 
     const id = this.storageService.saveGame({
@@ -118,13 +163,14 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
     } as GameCache);
 
     this.startGame(id);
+
   }
 
   startGame(id: string) {
     this.selectedGameId = id;
     this.gameInProgress = true;
   }
-  
+
   deleteGame(id: string) {
     if(confirm("Are you sure?")){
       this.storageService.deleteGame(id);

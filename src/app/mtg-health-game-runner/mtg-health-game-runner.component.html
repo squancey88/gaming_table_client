@@ -29,7 +29,7 @@
   <div [formGroup]="damageForm" class="game-form">
     <mat-form-field>
       <mat-label>Target</mat-label>
-      <mat-select formControlName="targetPlayerIndex">
+      <mat-select formControlName="target_player_index">
         <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
           {{player.name}}
         </mat-option>
@@ -41,7 +41,7 @@
 
     <mat-form-field>
       <mat-label>Attacker</mat-label>
-      <mat-select formControlName="sourcePlayerIndex">
+      <mat-select formControlName="source_player_index">
         <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
           {{player.name}}
         </mat-option>
@@ -51,7 +51,7 @@
     <mat-form-field>
       <mat-label>Amount</mat-label>
       <input matInput formControlName="change" type="number">
-    </mat-form-field>  
+    </mat-form-field>
 
     <mat-checkbox formControlName="commander">Commander?</mat-checkbox>
 
@@ -63,7 +63,7 @@
   <div [formGroup]="healingForm" class="game-form">
     <mat-form-field>
       <mat-label>Target</mat-label>
-      <mat-select formControlName="targetPlayerIndex">
+      <mat-select formControlName="target_player_index">
         <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
           {{player.name}}
         </mat-option>
@@ -73,7 +73,7 @@
     <mat-form-field>
       <mat-label>Amount</mat-label>
       <input matInput formControlName="change" type="number">
-    </mat-form-field>  
+    </mat-form-field>
 
     <button mat-flat-button (click)="doHeal()">Heal</button>
   </div>
@@ -82,16 +82,16 @@
   <h3>Events</h3>
 
   <div class="changes">
-    <div class="change" *ngFor="let event of gameData.healthChanges.slice().reverse(); let i=index" 
+    <div class="change" *ngFor="let event of gameData.health_changes.slice().reverse(); let i=index"
       [class.change-damage]="event.change < 0" [class.change-healing]="event.change > 0">
       <ng-content *ngIf="event.change < 0 else healed">
         <span>
-          {{ playerData[+event.targetPlayerIndex].player.name }} was damaged by {{ playerData[event.sourcePlayerIndex].player.name }} for {{ -event.change }} damage
+          {{ playerData[+event.target_player_index].player.name }} was damaged by {{ playerData[event.source_player_index].player.name }} for {{ -event.change }} damage
           <ng-content *ngIf="event.commander">by commander</ng-content>
         </span>
       </ng-content>
       <ng-template #healed>
-        {{ playerData[+event.targetPlayerIndex].player.name }} healed {{ event.change }}
+        {{ playerData[+event.target_player_index].player.name }} healed {{ event.change }}
       </ng-template>
       <button mat-raised-button (click)="undoChange(i)">Undo</button>
   </div>

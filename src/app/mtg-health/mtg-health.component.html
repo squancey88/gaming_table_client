@@ -12,6 +12,7 @@
       <mat-label>Start Health</mat-label>
       <input matInput formControlName="start_health">
     </mat-form-field>
+    <mat-checkbox formControlName="add_to_aic">Add to AIC</mat-checkbox>
     <button mat-button (click)="addPlayer()">Add Player</button>
     <div formArrayName="players">
       <div *ngFor="let row of startPlayerRows.controls; let i=index" [formGroupName]="i">
@@ -29,14 +30,15 @@
         <app-color-picker label="Player Colour" formControlName="background_color"></app-color-picker>
       </div>
     </div>
-    <button mat-button (click)="create()">Create</button>
+    <span *ngIf="!validGame">You need to select an AIC session</span>
+    <button mat-button [disabled]="!validGame" (click)="create()">Create</button>
   </div>
 
   <h2>Existing Games</h2>
 
   <mat-list>
     <mat-list-item *ngFor="let cachedGame of cachedGames">
-      Started {{ cachedGame.data.started }} 
+      Started {{ cachedGame.data.started }}
       <button mat-button (click)="startGame(cachedGame.id)"> Continue </button>
       <button mat-button (click)="deleteGame(cachedGame.id)"> Delete </button>
     </mat-list-item>

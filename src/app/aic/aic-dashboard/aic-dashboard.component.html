@@ -12,7 +12,13 @@ You are connected to AIC
   </mat-form-field>
 </div>
 
-<div *ngIf="sessions.length > 0">
-  <h3>Sessions</h3>
-  <div *ngFor="let session of sessions">{{ session.start_time }}</div>
+<div *ngIf="selectedGroup">
+  <button mat-raised-button (click)="createSession()">Create new session</button>
+  <div *ngIf="sessions.length > 0">
+    <h3>Sessions</h3>
+    <div *ngFor="let session of sessions">
+      {{ session.start_time | date:'short' }}
+      <button mat-raised-button (click)="selectSession(session)">Set Session</button>
+    </div>
+  </div>
 </div>

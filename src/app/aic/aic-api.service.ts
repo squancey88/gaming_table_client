@@ -14,13 +14,13 @@ export class AicApiService {
 
   constructor(
     private httpClient: HttpClient
-  ) { 
+  ) {
     const token = localStorage.getItem(TOKEN_STORAGE_KEY)
     if (token) this.currentToken = token;
   }
 
   login(loginData: Login): Observable<string|null> {
-    return this.httpClient.post<{token: string}>(this.toUrl('auth/authenticate_token'), loginData)
+    return this.httpClient.post<{token: string}>(this.loginUrl(), loginData)
       .pipe(map((response) => {
         if(response.token){
           this.currentToken = response.token;
@@ -30,7 +30,7 @@ export class AicApiService {
         }
       }));
   }
-  
+
   getRecords<T extends AICCommonFields>(endPoint: string, params?: any): Observable<Array<T>>{
     return this.httpClient.get<Array<T>>(this.toUrl(endPoint), {
       params: params,
@@ -49,11 +49,33 @@ export class AicApiService {
     }).pipe(map((value) => this.processDates<T>(value)));
   }
 
-  private toUrl(endPoint: string):string {
-    return `${environment.aicServer}/${endPoint}.json`;
+  doPost<T extends AICCommonFields>(endPoint: string, params: any): Observable<T> {
+    return this.httpClient.post<T>(this.toUrl(endPoint), params,
+     {
+      headers: {
+        "Authorization": `Bearer ${this.currentToken}`
+      }
+    }).pipe(map((value) => this.processDates<T>(value)));
   }
-  
-  private processApiData<T extends AICCommonFields>(values: Array<T>): Array<T> {  
+
+  doPatch<T extends AICCommonFields>(endPoint: string, params: any): Observable<T> {
+    return this.httpClient.patch<T>(this.toUrl(endPoint), params,
+     {
+      headers: {
+        "Authorization": `Bearer ${this.currentToken}`
+      }
+    }).pipe(map((value) => this.processDates<T>(value)));
+  }
+
+  private toUrl(endPoint: string): string {
+    return `${environment.aicServer}/api/${endPoint}`;
+  }
+
+  private loginUrl():string {
+    return `${environment.aicServer}/auth/authenticate_token.json`;
+  }
+
+  private processApiData<T extends AICCommonFields>(values: Array<T>): Array<T> {
     return values.map((i) => this.processDates(i));
   }
 

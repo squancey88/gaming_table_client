@@ -11,9 +11,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatButtonModule } from '@angular/material/button';
 import humanizeDuration from 'humanize-duration';
+import { GamesApiService } from '../aic/games-api.service';
 
 interface CommanderTracking {
-  playerIndex: number, 
+  playerIndex: number,
   name: string,
   totalDamage: number
 }
@@ -21,7 +22,7 @@ interface CommanderTracking {
 @Component({
   selector: 'app-mtg-health-game-runner',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatIconModule, 
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatIconModule,
     MatSelectModule, MatInputModule, MatCheckboxModule,
     MatButtonModule,
     CommonModule],
@@ -35,9 +36,9 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
 
   gameData: MTGGameInstance;
   playerData: Array<{
-    player: MTGPlayer, 
-    currentHealth: number, 
-    totalTime: string, 
+    player: MTGPlayer,
+    currentHealth: number,
+    totalTime: string,
     commanderDamage: Array<CommanderTracking>
   }> = [];
   currentPlayer = 0;
@@ -50,19 +51,20 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   constructor(
     private tableInterface: TableInterfaceService,
     private storageService: StorageService,
+    private gameApi: GamesApiService,
     private cdr: ChangeDetectorRef,
     formBuilder: FormBuilder
   ) {
     this.gameData = {} as MTGGameInstance;
     this.damageForm = formBuilder.group({
-      targetPlayerIndex: new FormControl(),
-      sourcePlayerIndex: new FormControl(),
+      target_player_index: new FormControl(),
+      source_player_index: new FormControl(),
       commander: new FormControl(),
       change: new FormControl()
     })
     this.healingForm = formBuilder.group({
-      targetPlayerIndex: new FormControl(),
-      sourcePlayerIndex: new FormControl(null),
+      target_player_index: new FormControl(),
+      source_player_index: new FormControl(null),
       commander: new FormControl(false),
       change: new FormControl()
     })
@@ -71,19 +73,19 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
 
   startTurn(){
     this.currentTurn = {
-      startTime: new Date(),
-      currentPlayerIndex: this.currentPlayer
+      start_time: new Date(),
+      current_player_index: this.currentPlayer
     }
   }
 
   updateTimer(){
     if (this.currentTurn)
-      this.turnLength = humanizeDuration(new Date().getTime() - this.currentTurn?.startTime.getTime());
+      this.turnLength = humanizeDuration(new Date().getTime() - this.currentTurn?.start_time.getTime());
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if(changes['gameId']) {
-      const cache = this.storageService.loadGame(this.gameId); 
+      const cache = this.storageService.loadGame(this.gameId);
       if (cache) {
         this.gameData = cache.data
         this.startGame();
@@ -102,7 +104,7 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
     this.gameData.players.forEach((player, index) => {
       this.playerData.push({
         player: player,
-        currentHealth: this.gameData.startHealth,
+        currentHealth: this.gameData.start_health,
         totalTime: "",
         commanderDamage: commanderTracking.filter((item) => item.playerIndex != index)
       })
@@ -118,8 +120,8 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   }
 
   recalculateChanges(){
-    this.playerData.forEach((player) => player.currentHealth = this.gameData.startHealth)
-    this.gameData.healthChanges.forEach((change) => this.processChange(change))
+    this.playerData.forEach((player) => player.currentHealth = this.gameData.start_health)
+    this.gameData.health_changes.forEach((change) => this.processChange(change))
   }
 
   nextTurn(){
@@ -132,7 +134,7 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
     this.playerTimeCalculation()
     this.startTurn();
     this.tableInterface.sendLightUpdate({
-      current_turn: this.playerData[this.currentPlayer].player.tableSeat
+      current_turn: this.playerData[this.currentPlayer].player.table_seat
     });
   }
 
@@ -141,8 +143,8 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
     this.playerTimeCalculation()
     this.paused = true;
     this.currentTurn = {
-      currentPlayerIndex: undefined,
-      startTime: new Date()
+      current_player_index: undefined,
+      start_time: new Date()
     }
   }
 
@@ -154,8 +156,8 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
 
   saveTurn() {
     if(this.currentTurn) {
-      this.currentTurn.endTime = new Date();
-      this.gameData.timeTracking.push(this.currentTurn);
+      this.currentTurn.end_time = new Date();
+      this.gameData.turn_tracking.push(this.currentTurn);
       this.saveGame();
     }
   }
@@ -180,28 +182,28 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   }
 
   applyChange(change: HealthChange) {
-    if(change.targetPlayerIndex === "others") {
-      this.getOthersIndex(change.sourcePlayerIndex).forEach((i) => {
+    if(change.target_player_index === "others") {
+      this.getOthersIndex(change.source_player_index).forEach((i) => {
         const newChange = {...change}
-        newChange.targetPlayerIndex = i;
+        newChange.target_player_index = i;
         newChange.at = new Date();
         this.processChange(newChange);
-        this.gameData.healthChanges.push(newChange);
+        this.gameData.health_changes.push(newChange);
         this.saveGame();
       });
     } else {
       change.at = new Date();
       this.processChange(change);
-      this.gameData.healthChanges.push(change);
+      this.gameData.health_changes.push(change);
       this.saveGame();
     }
   }
 
   undoChange(reversedIndex: number) {
-    const index = this.gameData.healthChanges.length - reversedIndex - 1;
+    const index = this.gameData.health_changes.length - reversedIndex - 1;
     if(confirm("Are you sure?")) {
-      const change = this.gameData.healthChanges.splice(index, 1)[0];
-      this.playerCommanderDamageCalcs(change.targetPlayerIndex);
+      const change = this.gameData.health_changes.splice(index, 1)[0];
+      this.playerCommanderDamageCalcs(change.target_player_index);
       this.recalculateChanges();
       this.saveGame();
     }
@@ -214,10 +216,15 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
       data: this.gameData
     } as GameCache);
     this.sendTableUpdate();
+    if(this.gameData.aic_id) {
+      this.gameApi.update(this.gameData.aic_id, {data: this.gameData}).subscribe((response) => {
+        console.log(response);
+      });
+    }
   }
 
   processChange(change: HealthChange){
-    this.playerData[+change.targetPlayerIndex].currentHealth += change.change;
+    this.playerData[+change.target_player_index].currentHealth += change.change;
   }
 
   playerCommanderDamageCalcs(playerIndex: number | "others"){
@@ -226,7 +233,7 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
     this.playerData.forEach((otherPlayer, oIndex) => {
       if(oIndex == playerIndex) return;
 
-      const commanderChanges = this.gameData.healthChanges.filter((item) => item.commander && item.targetPlayerIndex == playerIndex && item.sourcePlayerIndex == oIndex);
+      const commanderChanges = this.gameData.health_changes.filter((item) => item.commander && item.target_player_index == playerIndex && item.source_player_index == oIndex);
       let totalDamage
       if(commanderChanges.length > 0) {
         totalDamage = commanderChanges.reduce((prev, current) => {
@@ -246,11 +253,11 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
 
   playerTimeCalculation(){
     this.playerData.forEach((player, index) => {
-      const timeRecords = this.gameData.timeTracking.filter((item) => item.currentPlayerIndex == index);
+      const timeRecords = this.gameData.turn_tracking.filter((item) => item.current_player_index == index);
       player.totalTime = humanizeDuration(timeRecords.reduce((prev, current) => {
         let diff;
-        if(current.endTime) {
-          diff = (new Date(current.endTime).getTime() - new Date(current.startTime).getTime());
+        if(current.end_time) {
+          diff = (new Date(current.end_time).getTime() - new Date(current.start_time).getTime());
         } else {
           diff = 0
         }
@@ -263,7 +270,7 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   sendTableUpdate() {
     const player_data = this.playerData.map((player) => {
       return {
-        player: player.player.tableSeat,
+        player: player.player.table_seat,
         current_health: player.currentHealth
       }
     })
@@ -272,15 +279,15 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
 
   sendStartCommand(){
     this.tableInterface.startMTGHealth({
-      player_positions: this.gameData.players.map((value) => { 
+      player_positions: this.gameData.players.map((value) => {
         return {
-          position: value.tableSeat, 
+          position: value.table_seat,
           background_color: "#909090"
         }
       }),
-      start_health: this.gameData.startHealth,
+      start_health: this.gameData.start_health,
       light_count: 20,
-      start_seat: this.gameData.players[0].tableSeat
+      start_seat: this.gameData.players[0].table_seat
     });
     this.sendTableUpdate();
   }

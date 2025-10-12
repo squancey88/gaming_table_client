@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AICService } from '../aic.service';
-import { GamingGroup, User } from '../aic.interfaces';
+import { GamingGroup, User, GamingSession } from '../aic.interfaces';
 
 @Component({
   selector: 'app-aic-status',
@@ -11,6 +11,7 @@ export class AicStatusComponent implements OnInit {
 
   loggedIn = false;
   currentGroup?: GamingGroup;
+  currentSession?: GamingSession;
 
   constructor(private aicService: AICService){
     this.aicService.loggedIn.subscribe((value) => {
@@ -18,6 +19,7 @@ export class AicStatusComponent implements OnInit {
       this.loggedIn = value
     });
     this.aicService.selectedGroup.subscribe(x => this.currentGroup = x)
+    this.aicService.selectedSession.subscribe(x => this.currentSession = x)
   }
 
   ngOnInit(): void {

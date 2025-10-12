@@ -28,6 +28,7 @@ export class AicDashboardComponent {
     this.aicService.selectedGroup.subscribe(value => {
       if(value)
         this.selectedGroup = value;
+        this.getSessions();
     })
   }
 
@@ -36,23 +37,42 @@ export class AicDashboardComponent {
     this.aicService.logout();
   }
 
+  createSession() {
+    if (this.selectedGroup) {
+      this.apiService.doPost<GamingSession>(`gaming_groups/${this.selectedGroup.id}/gaming_sessions`, {
+        gaming_session: { start_time: new Date().toISOString() }
+      }).subscribe(
+        (response) => {
+          this.getSessions();
+          this.selectSession(response);
+        }
+      );
+    }
+  }
+
+  selectSession(session: GamingSession) {
+    this.aicService.currentSession = session;
+  }
+
   getGamingGroups(){
     this.apiService.getRecords<GamingGroup>('gaming_groups', {}).subscribe((response) => {
       this.groups = response;
     });
   }
 
-  getCurrentSessions() {
-    this.apiService.getRecords<GamingSession>(`gaming_groups/${this.selectedGroup?.id}/gaming_sessions`,
-      {}
-    ).subscribe((response) => {
-      this.sessions = response;
-    });
+  getSessions() {
+    if(this.selectedGroup) {
+      this.apiService.getRecords<GamingSession>(`gaming_groups/${this.selectedGroup.id}/gaming_sessions`,
+        {}
+      ).subscribe((response) => {
+        this.sessions = response;
+      });
+    }
   }
-  
+
   setGroup(group: GamingGroup){
     this.aicService.currentGroup = group;
     this.selectedGroup = group;
-    this.getCurrentSessions();
+    this.getSessions();
   }
 }

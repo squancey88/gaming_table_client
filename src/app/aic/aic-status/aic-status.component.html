@@ -1,5 +1,8 @@
 <div class="aic-status-container">
   <div *ngIf="loggedIn" class="group">
+    <span *ngIf="currentGroup && currentSession">
+      Session: {{ currentSession.start_time | date:'short' }}
+    </span>
     <span *ngIf="currentGroup else noGroup">
       {{ currentGroup.name }}
     </span>
