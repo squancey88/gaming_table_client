@@ -33,6 +33,9 @@
         <mat-option *ngFor="let player of gameData.players; let i=index;" [value]="i">
           {{player.name}}
         </mat-option>
+        <mat-option value="others">
+          Others
+        </mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -83,12 +86,12 @@
       [class.change-damage]="event.change < 0" [class.change-healing]="event.change > 0">
       <ng-content *ngIf="event.change < 0 else healed">
         <span>
-          {{ playerData[event.targetPlayerIndex].player.name }} was damaged by {{ playerData[event.sourcePlayerIndex].player.name }} for {{ -event.change }} damage
+          {{ playerData[+event.targetPlayerIndex].player.name }} was damaged by {{ playerData[event.sourcePlayerIndex].player.name }} for {{ -event.change }} damage
           <ng-content *ngIf="event.commander">by commander</ng-content>
         </span>
       </ng-content>
       <ng-template #healed>
-        {{ playerData[event.targetPlayerIndex].player.name }} healed {{ event.change }}
+        {{ playerData[+event.targetPlayerIndex].player.name }} healed {{ event.change }}
       </ng-template>
       <button mat-raised-button (click)="undoChange(i)">Undo</button>
   </div>

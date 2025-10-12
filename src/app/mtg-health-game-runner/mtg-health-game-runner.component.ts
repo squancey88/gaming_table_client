@@ -131,11 +131,8 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
     }
     this.playerTimeCalculation()
     this.startTurn();
-    this.tableInterface.sendLightCommand({
-      type: "update",
-      params: {
-        current_turn: this.playerData[this.currentPlayer].player.tableSeat
-      }
+    this.tableInterface.sendLightUpdate({
+      current_turn: this.playerData[this.currentPlayer].player.tableSeat
     });
   }
 
@@ -169,7 +166,11 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
     console.log(change);
     this.applyChange(change);
     this.damageForm.reset();
-    this.playerCommanderDamageCalcs(change.targetPlayerIndex);
+    if (change.targetPlayerIndex === "others"){
+      this.getOthersIndex(change.sourcePlayerIndex).forEach((i) => this.playerCommanderDamageCalcs(i));
+    } else {
+      this.playerCommanderDamageCalcs(change.targetPlayerIndex);
+    }
   }
 
   doHeal() {
@@ -179,10 +180,21 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   }
 
   applyChange(change: HealthChange) {
-    change.at = new Date();
-    this.processChange(change);
-    this.gameData.healthChanges.push(change);
-    this.saveGame();
+    if(change.targetPlayerIndex === "others") {
+      this.getOthersIndex(change.sourcePlayerIndex).forEach((i) => {
+        const newChange = {...change}
+        newChange.targetPlayerIndex = i;
+        newChange.at = new Date();
+        this.processChange(newChange);
+        this.gameData.healthChanges.push(newChange);
+        this.saveGame();
+      });
+    } else {
+      change.at = new Date();
+      this.processChange(change);
+      this.gameData.healthChanges.push(change);
+      this.saveGame();
+    }
   }
 
   undoChange(reversedIndex: number) {
@@ -205,11 +217,11 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   }
 
   processChange(change: HealthChange){
-    this.playerData[change.targetPlayerIndex].currentHealth += change.change;
+    this.playerData[+change.targetPlayerIndex].currentHealth += change.change;
   }
 
-  playerCommanderDamageCalcs(playerIndex: number){
-    const player = this.playerData[playerIndex];
+  playerCommanderDamageCalcs(playerIndex: number | "others"){
+    const player = this.playerData[+playerIndex];
     const commanderData: Array<CommanderTracking> = []
     this.playerData.forEach((otherPlayer, oIndex) => {
       if(oIndex == playerIndex) return;
@@ -249,42 +261,32 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   }
 
   sendTableUpdate() {
-    const player_data = new Array();
-    this.playerData.forEach((player) => {
-      player_data.push(
-        {
-          player: player.player.tableSeat,
-          current_health: player.currentHealth
-        }
-      );
-    })
-    this.tableInterface.sendLightCommand({
-      type: "update",
-      params: {
-        player_data: player_data
+    const player_data = this.playerData.map((player) => {
+      return {
+        player: player.player.tableSeat,
+        current_health: player.currentHealth
       }
-    });
+    })
+    this.tableInterface.sendLightUpdate({ player_data: player_data });
   }
 
   sendStartCommand(){
-    this.tableInterface.sendLightCommand({
-      type: "new",
-      name: "mtg_health",
-      params:{
-        player_positions: this.gameData.players.map((value) => { 
-          return {
-            position: value.tableSeat, 
-            background_color: "#909090"
-          }
-        }),
-        start_health: this.gameData.startHealth,
-        light_count: 20,
-        start_seat: this.gameData.players[0].tableSeat
-      }
-    })
+    this.tableInterface.startMTGHealth({
+      player_positions: this.gameData.players.map((value) => { 
+        return {
+          position: value.tableSeat, 
+          background_color: "#909090"
+        }
+      }),
+      start_health: this.gameData.startHealth,
+      light_count: 20,
+      start_seat: this.gameData.players[0].tableSeat
+    });
     this.sendTableUpdate();
   }
 
+  getOthersIndex(index: Number): Array<number> {
+    const length = this.playerData.length
+    return Array.from({ length }, (_, i) => i).filter(i => i !== index);
+  }
 }
-
-

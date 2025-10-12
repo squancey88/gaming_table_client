@@ -30,7 +30,7 @@ export interface MTGPlayer {
 }
 
 export interface HealthChange {
-  targetPlayerIndex: number;
+  targetPlayerIndex: number | "others";
   change: number;
   sourcePlayerIndex: number;
   commander: boolean;
