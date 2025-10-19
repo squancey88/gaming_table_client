@@ -1,0 +1,49 @@
+name: Build & Release Angular zip
+
+on:
+  push:
+    tags:
+      - 'v*'         # e.g. v1.2.3
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to create releases & upload assets
+
+    env:
+      NODE_VERSION: '20'
+      DIST_DIR: dist/gaming_table_client/browser
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build (prod)
+        run: npx ng build --configuration production
+
+      - name: Zip build output
+        run: |
+          test -d "${DIST_DIR}" || (echo "Missing ${DIST_DIR}" && exit 1)
+          mkdir -p release
+          zip -r "release/gaming_table_client-${{ github.ref_name }}.zip" "${DIST_DIR}"
+
+      - name: Create Release & upload asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
