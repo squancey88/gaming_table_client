@@ -1,0 +1,24 @@
+<mat-card>
+  <mat-card-header>
+    <div mat-card-avatar><aic-status-icon></aic-status-icon></div>
+    <mat-card-title>AIC Status</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div *ngIf="loggedIn else notLoggedIn">
+      <div *ngIf="currentGroup">Selected Group: {{ currentGroup.name }}</div>
+
+      <aic-group-select></aic-group-select>
+
+      <div *ngIf="currentGroup">
+        <p>Selected Session: {{ currentSession?.start_time | date:'short' }}</p>
+        <aic-session-select></aic-session-select>
+      </div>
+    </div>
+
+
+    <ng-template #notLoggedIn>
+      <a routerLink="aic-login">Login</a>
+    </ng-template>
+
+  </mat-card-content>
+</mat-card>

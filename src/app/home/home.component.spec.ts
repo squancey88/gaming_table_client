@@ -1,6 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './home.component';
+import { TableInterfaceService } from '../table-interface.service';
+import { createTableInterfaceServiceMock } from '../testing/service.mocks';
+import { AicModule } from '../aic/aic.module';
+
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -8,7 +13,10 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HomeComponent]
+      imports: [HomeComponent, BrowserAnimationsModule, AicModule],
+      providers: [
+        {provide: TableInterfaceService, useValue: createTableInterfaceServiceMock()}
+      ]
     })
     .compileComponents();
 

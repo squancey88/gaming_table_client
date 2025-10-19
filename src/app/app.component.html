@@ -4,12 +4,18 @@
   </button>
   <span>Gaming Table Controller</span>
   <span class="menu-spacer"></span>
-  <app-table-status></app-table-status>
+  <div class="statuses">
+    <app-aic-status></app-aic-status>
+    <app-table-status></app-table-status>
+  </div>
 </mat-toolbar>
 
 <mat-menu #menu="matMenu">
   <a routerLink="/" mat-menu-item>Home</a>
+  <a routerLink="/light-controls" mat-menu-item>Lights</a>
   <a routerLink="/mtg-health" mat-menu-item>MTG</a>
 </mat-menu>
 
-<router-outlet />
+<div class="content-wrapper">
+  <router-outlet />
+</div>

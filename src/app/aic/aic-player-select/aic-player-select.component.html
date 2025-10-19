@@ -1,0 +1,8 @@
+<mat-form-field>
+  <mat-label>Player</mat-label>
+  <mat-select [value]="value" (selectionChange)="selectChange($event)">
+    @for (user of users; track user) {
+      <mat-option [value]="user.id">{{user.display_name}}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>

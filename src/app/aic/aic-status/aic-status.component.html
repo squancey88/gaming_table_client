@@ -1,0 +1,16 @@
+<div class="aic-status-container">
+  <div *ngIf="loggedIn" class="group">
+    <span *ngIf="currentGroup && currentSession">
+      Session: {{ currentSession.start_time | date:'short' }}
+    </span>
+    <span *ngIf="currentGroup else noGroup">
+      {{ currentGroup.name }}
+    </span>
+    <ng-template #noGroup>
+      No Group Selected
+    </ng-template>
+  </div>
+  <div class="aic-status-dashboard">
+    <aic-status-icon></aic-status-icon>
+  </div>
+</div>

@@ -51,6 +51,18 @@ export class TableInterfaceService {
     });
   }
 
+  startMTGHealth(params: any) {
+    this.sendLightCommand({
+      type: "new",
+      name: "mtg_health",
+      params: params
+    })
+  }
+
+  sendLightUpdate(params: any) {
+    this.sendLightCommand({type: "update", params: params});
+  }
+
   sendLightCommand(command: any) {
     this.httpClient.post(this.configService.lightEndPoint, command).subscribe((response) => {
       console.log(response);

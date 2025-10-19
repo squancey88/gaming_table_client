@@ -1,0 +1,15 @@
+.aic-status-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+
+  .group {
+    font-size: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .aic-status-dashboard {
+  }
+}

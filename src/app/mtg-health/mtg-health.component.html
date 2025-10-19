@@ -2,24 +2,7 @@
 <h1>Magic the Gathering</h1>
 
 <div *ngIf="gameInProgress; else startSection">
-  <div [formGroup]="gameForm">
-    <div formArrayName="player_data">
-      <div class="player-row" *ngFor="let row of playerRows.controls; let i=index" [formGroupName]="i">
-        <mat-form-field>
-          <mat-label>
-            {{row.get("player_name")?.value}}
-          </mat-label>
-          <input matInput type="number" formControlName="current_health">
-        </mat-form-field>
-        <button mat-fab (click)="addHealth(i)">
-          <mat-icon>add</mat-icon>
-        </button>
-        <button mat-fab (click)="removeHealth(i)">
-          <mat-icon>remove</mat-icon>
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-mtg-health-game-runner [gameId]="selectedGameId"></app-mtg-health-game-runner>
 </div>
 
 <ng-template #startSection>
@@ -29,6 +12,7 @@
       <mat-label>Start Health</mat-label>
       <input matInput formControlName="start_health">
     </mat-form-field>
+    <mat-checkbox formControlName="add_to_aic">Add to AIC</mat-checkbox>
     <button mat-button (click)="addPlayer()">Add Player</button>
     <div formArrayName="players">
       <div *ngFor="let row of startPlayerRows.controls; let i=index" [formGroupName]="i">
@@ -36,6 +20,7 @@
           <mat-label>Name</mat-label>
           <input matInput id="player-creation-{{ i }}" type="text" formControlName="player_name">
         </mat-form-field>
+        <app-aic-player-select formControlName="player_id" (playerSelected)="setName($event, i)"></app-aic-player-select>
         <mat-form-field>
           <mat-label>Seat</mat-label>
           <mat-select formControlName="position">
@@ -45,6 +30,17 @@
         <app-color-picker label="Player Colour" formControlName="background_color"></app-color-picker>
       </div>
     </div>
-    <button mat-button (click)="start()">Start</button>
+    <span *ngIf="!validGame">You need to select an AIC session</span>
+    <button mat-button [disabled]="!validGame" (click)="create()">Create</button>
   </div>
+
+  <h2>Existing Games</h2>
+
+  <mat-list>
+    <mat-list-item *ngFor="let cachedGame of cachedGames">
+      Started {{ cachedGame.data.started }}
+      <button mat-button (click)="startGame(cachedGame.id)"> Continue </button>
+      <button mat-button (click)="deleteGame(cachedGame.id)"> Delete </button>
+    </mat-list-item>
+  </mat-list>
 </ng-template>
