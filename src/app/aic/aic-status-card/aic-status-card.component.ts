@@ -1,15 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AICService } from '../aic.service';
 import { GamingGroup, GamingSession } from '../aic.interfaces';
 
 @Component({
-  selector: 'app-aic-status',
-  templateUrl: './aic-status.component.html',
-  styleUrl: './aic-status.component.scss'
+  selector: 'aic-status-card',
+  templateUrl: './aic-status-card.component.html',
+  styleUrl: './aic-status-card.component.scss'
 })
-export class AicStatusComponent implements OnInit {
-
-  loggedIn = false;
+export class AicStatusCardComponent {
+  loggedIn = false
   currentGroup?: GamingGroup;
   currentSession?: GamingSession;
 
@@ -20,16 +19,5 @@ export class AicStatusComponent implements OnInit {
     });
     this.aicService.selectedGroup.subscribe(x => this.currentGroup = x)
     this.aicService.selectedSession.subscribe(x => this.currentSession = x)
-  }
-
-  ngOnInit(): void {
-  }
-
-  tooltipText(): string{
-    if(this.loggedIn){
-      return "Logged in to AIC"
-    } else {
-      return "Not Logged in to AIC"
-    }
   }
 }

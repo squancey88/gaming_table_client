@@ -1,0 +1,48 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Toggle</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="vertical-form" [formGroup]="toggleForm">
+      <app-color-picker label="Start Colour" formControlName="start_color"></app-color-picker>
+      <app-color-picker label="End Colour" formControlName="end_color"></app-color-picker>
+      <mat-form-field>
+        <mat-label>Time for toggle</mat-label>
+        <input matInput formControlName="time_for_toggle">
+      </mat-form-field>
+
+    </div>
+    <button mat-raised-button (click)="sendToggle()">Toggle</button>
+  </mat-card-content>
+</mat-card>
+
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Chase</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="vertical-form" [formGroup]="chaseForm">
+      <mat-form-field>
+        <mat-label>Time per Light</mat-label>
+        <input matInput formControlName="time_per_light">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Chase Count</mat-label>
+        <input matInput formControlName="chase_count">
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Tail Length</mat-label>
+        <input matInput formControlName="tail_length">
+      </mat-form-field>
+
+      <app-color-picker label="Background Colour" formControlName="background_color"></app-color-picker>
+      <app-color-picker label="Chase Colour" formControlName="chase_color"></app-color-picker>
+
+    </div>
+    <button mat-raised-button (click)="sendChase()">Chase</button>
+  </mat-card-content>
+</mat-card>
+
+<button (click)="sendTwinkle()">Twinkle</button>

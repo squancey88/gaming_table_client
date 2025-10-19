@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AicApiService } from './aic-api.service';
 import { Observable } from 'rxjs';
-import { Game } from './aic.interfaces';
+import { Game } from '../aic.interfaces';
 
 @Injectable({
   providedIn: 'root'

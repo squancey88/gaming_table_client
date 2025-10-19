@@ -1,8 +1,8 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { TableInterfaceService } from '../table-interface.service';
+import { TableInterfaceService } from '../table/table-interface.service';
 import { CommonModule } from '@angular/common';
 import { GameCache, HealthChange, MTGGameInstance, MTGPlayer, TimeEvent } from '../data-interfaces';
 import { StorageService } from '../storage.service';
@@ -11,7 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatButtonModule } from '@angular/material/button';
 import humanizeDuration from 'humanize-duration';
-import { GamesApiService } from '../aic/games-api.service';
+import { GamesApiService } from '../aic/api/games-api.service';
 
 interface CommanderTracking {
   playerIndex: number,
@@ -165,13 +165,12 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   doDamage() {
     const change = this.damageForm.value;
     change.change = (-change.change);
-    console.log(change);
     this.applyChange(change);
     this.damageForm.reset();
-    if (change.targetPlayerIndex === "others"){
-      this.getOthersIndex(change.sourcePlayerIndex).forEach((i) => this.playerCommanderDamageCalcs(i));
+    if (change.target_player_index === "others"){
+      this.getOthersIndex(change.source_player_index).forEach((i) => this.playerCommanderDamageCalcs(i));
     } else {
-      this.playerCommanderDamageCalcs(change.targetPlayerIndex);
+      this.playerCommanderDamageCalcs(change.target_player_index);
     }
   }
 
@@ -228,7 +227,9 @@ export class MtgHealthGameRunnerComponent implements OnChanges  {
   }
 
   playerCommanderDamageCalcs(playerIndex: number | "others"){
-    const player = this.playerData[+playerIndex];
+    if(playerIndex == "others") { return }
+    console.log('Doing commander updates', playerIndex);
+    const player = this.playerData[playerIndex];
     const commanderData: Array<CommanderTracking> = []
     this.playerData.forEach((otherPlayer, oIndex) => {
       if(oIndex == playerIndex) return;

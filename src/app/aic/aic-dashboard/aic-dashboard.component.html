@@ -4,21 +4,6 @@ You are connected to AIC
 
 <div>
   <h3>Groups</h3>
-  <mat-form-field>
-    <mat-label>Select Group</mat-label>
-    <mat-select [value]="selectedGroup" (selectionChange)="setGroup($event.value)">
-      <mat-option *ngFor="let group of groups" [value]="group">{{group.name}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+  <aic-group-select></aic-group-select>
 </div>
 
-<div *ngIf="selectedGroup">
-  <button mat-raised-button (click)="createSession()">Create new session</button>
-  <div *ngIf="sessions.length > 0">
-    <h3>Sessions</h3>
-    <div *ngFor="let session of sessions">
-      {{ session.start_time | date:'short' }}
-      <button mat-raised-button (click)="selectSession(session)">Set Session</button>
-    </div>
-  </div>
-</div>

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { AICService } from '../aic.service';
-import { AicApiService } from '../aic-api.service';
 import { Router } from '@angular/router';
 
 @Component({

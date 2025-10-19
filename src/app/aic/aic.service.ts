@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { GamingGroup, GamingSession, SELECTED_GROUP_KEY } from './aic.interfaces';
 import { Login } from '../data-interfaces';
-import { AicApiService } from './aic-api.service';
-import { GameSystemsApiService} from './game-systems-api.service';
+import { AicApiService } from './api/aic-api.service';
+import { GameSystemsApiService} from './api/game-systems-api.service';
 import { map } from 'rxjs';
 import { TOKEN_STORAGE_KEY, GameSystem } from './aic.interfaces';
 

@@ -1,5 +1,5 @@
 import { Component, OnInit} from '@angular/core';
-import { TableInterfaceService } from '../table-interface.service';
+import { TableInterfaceService } from '../table/table-interface.service';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
@@ -15,9 +15,9 @@ import { AicModule } from "../aic/aic.module";
 import { MtgHealthGameRunnerComponent } from "../mtg-health-game-runner/mtg-health-game-runner.component";
 import { GameCache, MTGGameInstance, MTGPlayer } from '../data-interfaces';
 import { StorageService } from '../storage.service';
-import { User, Game } from '../aic/aic.interfaces';
+import { User } from '../aic/aic.interfaces';
 import { AICService } from '../aic/aic.service';
-import { GamesApiService, GameData } from '../aic/games-api.service';
+import { GamesApiService, GameData } from '../aic/api/games-api.service';
 
 @Component({
   selector: 'app-mtg-health',
@@ -111,7 +111,6 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
 
   create(){
     const data = this.startForm.value;
-    console.log(data);
     if(data.add_to_aic) {
       this.setupAICGame(data);
     } else {
@@ -122,16 +121,17 @@ export class MtgHealthComponent extends GameRunnner implements OnInit {
   private setupAICGame(data: any) {
     const gameSystem = this.aicService.getGameSystemBySlug('mtg');
     if(gameSystem && this.aicService.currentSession) {
-      this.gameApi.createGame({
+      const gameData = {
         game_system_id: gameSystem.id,
         gaming_session_id: this.aicService.currentSession.id,
         players_attributes: data.players.map((item: any) => {
           return {
             controller_id: item.player_id,
             controller_type: "User"
-          }
+          };
         })
-      } as GameData).subscribe((game) => {
+      };
+      this.gameApi.createGame(gameData as GameData).subscribe((game) => {
         this.setupGameData(data, game.id);
       })
     }

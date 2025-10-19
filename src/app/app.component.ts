@@ -4,9 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
-import { TableStatusComponent } from "./table-status/table-status.component";
-import { GameRunnerGuard } from './guards/game-runner-guard';
 import { AicModule } from './aic/aic.module';
+import { TableModule } from './table/table.module';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +13,7 @@ import { AicModule } from './aic/aic.module';
   imports: [
     RouterOutlet, RouterLink,
     MatButtonModule, MatIconModule, MatToolbarModule, MatMenuModule,
-    TableStatusComponent, AicModule
+    TableModule, AicModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

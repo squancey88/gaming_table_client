@@ -1,0 +1,12 @@
+<mat-card>
+  <mat-card-header>
+    <div mat-card-avatar><app-table-status></app-table-status></div>
+    <mat-card-title>Table Status</mat-card-title>
+    <mat-card-subtitle *ngIf="currentStatus">
+      Lights: {{ currentStatus.lights.mode }}
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+
+  </mat-card-content>
+</mat-card>

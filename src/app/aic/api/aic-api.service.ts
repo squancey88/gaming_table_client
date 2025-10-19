@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { AICCommonFields, TOKEN_STORAGE_KEY} from './aic.interfaces';
-import { Login } from '../data-interfaces';
+import { environment } from '../../../environments/environment';
+import { AICCommonFields, TOKEN_STORAGE_KEY} from '../aic.interfaces';
+import { Login } from '../../data-interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -40,7 +40,7 @@ export class AicApiService {
     }).pipe(map((value) => this.processApiData<T>(value)));
   }
 
-  getRecord<T extends AICCommonFields>(endPoint: string, params: any): Observable<T> {
+  getRecord<T extends AICCommonFields>(endPoint: string, params?: any): Observable<T> {
     return this.httpClient.get<T>(this.toUrl(endPoint), {
       params: params,
       headers: {
